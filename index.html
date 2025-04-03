@@ -2,7 +2,7 @@
 <html lang="he" dir="rtl">
 <head>
   <meta charset="UTF-8" />
-  <title>מחשבון תאריך תשלום</title>
+  <title>מחשבון שוטף - משה פרץ יזמות ונדל"ן</title>
   <style>
     body {
       margin: 0;
@@ -27,9 +27,18 @@
       text-align: right;
     }
 
+    .title {
+      font-size: 20px;
+      font-weight: bold;
+      color: #002244;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
     h2 {
       margin-top: 0;
       color: #003366;
+      text-align: center;
     }
 
     label {
@@ -57,90 +66,3 @@
       border-radius: 10px;
       color: white;
       font-size: 16px;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-    }
-
-    button:hover {
-      background-color: #0056b3;
-    }
-
-    #result {
-      margin-top: 20px;
-      font-size: 18px;
-      color: #333;
-    }
-
-    #holiday {
-      margin-top: 15px;
-      font-size: 16px;
-      color: darkred;
-    }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <h2>מחשבון תאריך לתשלום חשבונית</h2>
-
-    <label for="invoiceDate">תאריך החשבונית:
-      <input type="date" id="invoiceDate">
-    </label>
-
-    <label for="terms">תנאי תשלום:
-      <select id="terms">
-        <option value="0">שוטף +0</option>
-        <option value="15">שוטף +15</option>
-        <option value="30">שוטף +30</option>
-        <option value="45">שוטף +45</option>
-        <option value="60">שוטף +60</option>
-        <option value="68">שוטף +68</option>
-        <option value="90">שוטף +90</option>
-        <option value="120">שוטף +120</option>
-      </select>
-    </label>
-
-    <button onclick="calculateDueDate()">חשב תאריך לתשלום</button>
-
-    <h3 id="result"></h3>
-    <h4 id="holiday"></h4>
-  </div>
-
-  <script>
-    async function calculateDueDate() {
-      const dateInput = document.getElementById('invoiceDate').value;
-      const terms = parseInt(document.getElementById('terms').value);
-
-      if (!dateInput) {
-        alert('יש לבחור תאריך חשבונית');
-        return;
-      }
-
-      const invoiceDate = new Date(dateInput);
-      const endOfMonth = new Date(invoiceDate.getFullYear(), invoiceDate.getMonth() + 1, 0);
-      const finalDate = new Date(endOfMonth);
-      finalDate.setDate(finalDate.getDate() + terms);
-
-      const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-      const formatted = finalDate.toLocaleDateString('he-IL', options);
-
-      document.getElementById('result').innerText = `📅 תאריך אחרון לתשלום: ${formatted}`;
-      document.getElementById('holiday').innerText = '';
-
-      const isoDate = finalDate.toISOString().split('T')[0];
-      const url = `https://www.hebcal.com/hebcal?v=1&cfg=json&maj=on&mod=on&year=${finalDate.getFullYear()}&month=${finalDate.getMonth() + 1}&ss=on&mf=on&c=on&geo=il&start=${isoDate}&end=${isoDate}`;
-
-      try {
-        const response = await fetch(url);
-        const data = await response.json();
-
-        const holidays = data.items?.filter(item => item.category === 'holiday');
-        if (holidays.length > 0) {
-          document.getElementById('holiday').innerText = `📌 שים לב: בתאריך זה חל החג – ${holidays[0].title}`;
-        }
-      } catch (err) {
-        console.error('שגיאה בבדיקת חגים:', err);
-      }
-    }
-  </script>
-</body>
-</html>
